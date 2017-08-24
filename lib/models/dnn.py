@@ -8,13 +8,13 @@ from tensorflow.contrib.layers.python.layers import layers as layers_lib
 
 
 def dnn(inputs, is_training=True, dropout_keep_prob=0.8):
-    regularizer = layers.l2_regularizer(scale=0.1)
+    regularizer = layers.l2_regularizer(scale=0.01)
     with tf.variable_scope('dnn'):
         net = inputs
         for _ in range(3):
             net = layers_lib.fully_connected(net,
                                              num_outputs=1024,
-                                             activation_fn=tf.nn.tanh,
+                                             activation_fn=tf.nn.relu,
                                              weights_regularizer=regularizer,
                                              biases_regularizer=regularizer)
             net = layers_lib.dropout(net, dropout_keep_prob, is_training=is_training)
