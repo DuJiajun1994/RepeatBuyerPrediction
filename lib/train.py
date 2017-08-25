@@ -29,7 +29,14 @@ def train_model(model_name, data_name, cfg_name):
     logits = build_model(model_name, x)
     predicts = tf.nn.softmax(logits)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits, y))
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=cfg.learning_rate).minimize(loss)
+
+    global_step = tf.Variable(0, trainable=False)
+    learning_rate = tf.train.exponential_decay(cfg.initial_learning_rate,
+                                               global_step=global_step,
+                                               decay_steps=1,
+                                               decay_rate=cfg.decay_rate)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss)
+    global_step_increment = global_step.assign_add(1)
 
     saver = tf.train.Saver()
 
@@ -42,9 +49,12 @@ def train_model(model_name, data_name, cfg_name):
         train_scores = np.ndarray(cfg.display_step * cfg.batch_size, dtype=np.float)
         train_index_x = 0
         for step in range(1, cfg.train_iters + 1):
+            if step % cfg.decay_step == 0:
+                sess.run(global_step_increment)
+
             data, labels = input_data.next_batch(cfg.batch_size, 'train')
             batch_loss, _, batch_predict = sess.run([loss, optimizer, predicts],
-                                                                    feed_dict={x: data, y: labels})
+                                                    feed_dict={x: data, y: labels})
             for train_index_y in range(cfg.batch_size):
                 train_index = train_index_x * cfg.batch_size + train_index_y
                 train_labels[train_index] = labels[train_index_y]
