@@ -14,6 +14,8 @@ from build_model import build_model
 from data_provider import DataProvider
 from config_provider import get_config
 from paths import Paths
+import numpy as np
+from sklearn.metrics import roc_auc_score
 
 
 def train_model(model_name, data_name, cfg_name):
@@ -28,8 +30,6 @@ def train_model(model_name, data_name, cfg_name):
     predicts = tf.nn.softmax(logits)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits, y))
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=cfg.learning_rate).minimize(loss)
-    correct_predict = tf.equal(tf.argmax(logits, 1), y)
-    accuracy = tf.reduce_mean(tf.cast(correct_predict, tf.float32), name='accuracy')
 
     saver = tf.train.Saver()
 
@@ -38,19 +38,26 @@ def train_model(model_name, data_name, cfg_name):
 
         print('Start training')
         train_loss = 0.
-        train_accuracy = 0.
+        train_labels = np.ndarray(cfg.display_step * cfg.batch_size, dtype=np.int)
+        train_scores = np.ndarray(cfg.display_step * cfg.batch_size, dtype=np.float)
+        train_index_x = 0
         for step in range(1, cfg.train_iters + 1):
             data, labels = input_data.next_batch(cfg.batch_size, 'train')
-            batch_loss, _, batch_accuracy, batch_predict = sess.run([loss, optimizer, accuracy, predicts],
+            batch_loss, _, batch_predict = sess.run([loss, optimizer, predicts],
                                                                     feed_dict={x: data, y: labels})
+            for train_index_y in range(cfg.batch_size):
+                train_index = train_index_x * cfg.batch_size + train_index_y
+                train_labels[train_index] = labels[train_index_y]
+                train_scores[train_index] = batch_predict[train_index_y][1]
             train_loss += batch_loss
-            train_accuracy += batch_accuracy
+
             # Display training status
             if step % cfg.display_step == 0:
+                train_accuracy = roc_auc_score(train_labels, train_scores)
                 print("{} Iter {}: Training Loss = {:.4f}, Accuracy = {:.4f}"
-                      .format(datetime.now(), step, train_loss / cfg.display_step, train_accuracy / cfg.display_step))
+                      .format(datetime.now(), step, train_loss / cfg.display_step, train_accuracy))
                 train_loss = 0.
-                train_accuracy = 0.
+                train_index_x = 0
 
             # Snapshot
             if step % cfg.snapshot_step == 0:
@@ -60,13 +67,17 @@ def train_model(model_name, data_name, cfg_name):
 
             # Display validation status
             if step % cfg.val_step == 0:
-                val_accuracy = 0.
                 val_num = int(input_data.val_size / cfg.batch_size)
-                for _ in range(val_num):
+                val_labels = np.ndarray(val_num * cfg.batch_size, dtype=np.int)
+                val_scores = np.ndarray(val_num * cfg.batch_size, dtype=np.float)
+                for val_index_x in range(val_num):
                     data, labels = input_data.next_batch(cfg.batch_size, 'val')
-                    acc = sess.run(accuracy, feed_dict={x: data, y: labels})
-                    val_accuracy += acc
-                val_accuracy /= val_num
+                    val_predicts = sess.run(predicts, feed_dict={x: data, y: labels})
+                    for val_index_y in range(cfg.batch_size):
+                        val_index = val_index_x * cfg.batch_size + val_index_y
+                        val_labels[val_index] = labels[val_index_y]
+                        val_scores[val_index] = val_predicts[val_index_y][1]
+                val_accuracy = roc_auc_score(val_labels, val_scores)
                 print("{} Iter {}: Validation Accuracy = {:.4f}".format(datetime.now(), step, val_accuracy))
 
         print('Finish!')
