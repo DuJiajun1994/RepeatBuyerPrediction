@@ -14,15 +14,15 @@ def print_info(dic):
     for key in keys:
         print('{}\t{}'.format(key, dic[key]))
 
-merchant = pd.read_csv('../data/user_log_format1.csv', dtype=str)
+df = pd.read_csv('../data/user_log_format1.csv')
 
 categories = {}
 brands = {}
-for ix, row in merchant.iterrows():
-    if isinstance(row['cat_id'], str):
+for ix, row in df.iterrows():
+    if pd.notnull(row['cat_id']):
         cat_id = int(row['cat_id'])
         add_item(categories, cat_id)
-    if isinstance(row['brand_id'], str):
+    if pd.notnull(row['brand_id']):
         brand_id = int(row['brand_id'])
         add_item(brands, brand_id)
     if ix % 10000 == 0:
