@@ -1,14 +1,10 @@
-import sys
-import os
-lib_path = os.getcwd()
-print(lib_path)
-sys.path.insert(0, lib_path)
-print('System path:')
-print(sys.path)
+from paths import add_lib_path
+add_lib_path()
 
 import tensorflow as tf
 from datetime import datetime
 import argparse
+import os
 import sys
 from build_model import build_model
 from data_provider import get_data_provider

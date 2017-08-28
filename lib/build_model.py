@@ -7,10 +7,11 @@ from models.logistic_regression import logistic_regression
 
 
 def build_model(model_name, inputs, is_training=True, dropout_keep_prob=0.5):
+    model = None
     if model_name == 'dnn':
-        net = dnn(inputs)
+        model = dnn(inputs)
     elif model_name == 'logistic_regression':
-        net = logistic_regression(inputs)
-    else:
-        raise Exception('model {} is not existed'.format(model_name))
-    return net
+        model = logistic_regression(inputs)
+    assert model is not None, \
+        'data provider {} is not existed'.format(model_name)
+    return model

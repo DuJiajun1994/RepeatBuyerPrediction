@@ -1,13 +1,9 @@
-import sys
-import os
-lib_path = os.getcwd()
-print(lib_path)
-sys.path.insert(0, lib_path)
-print('System path:')
-print(sys.path)
+from paths import add_lib_path
+add_lib_path()
 
 import tensorflow as tf
 import argparse
+import os
 import sys
 from data_provider import DataProvider
 from config_provider import get_config
