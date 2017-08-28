@@ -11,7 +11,7 @@ from datetime import datetime
 import argparse
 import sys
 from build_model import build_model
-from data_provider import DataProvider
+from data_provider import get_data_provider
 from config_provider import get_config
 from paths import Paths
 import numpy as np
@@ -22,9 +22,9 @@ def train_model(model_name, data_name, cfg_name):
     cfg = get_config(cfg_name)
     print('Config:')
     print(cfg)
-    input_data = DataProvider(data_name)
+    data_provider = get_data_provider(data_name)
 
-    x = tf.placeholder(tf.float32, shape=[cfg.batch_size, input_data.input_length], name='x')
+    x = tf.placeholder(tf.float32, shape=[cfg.batch_size, data_provider.input_length], name='x')
     y = tf.placeholder(tf.int64, shape=[cfg.batch_size], name='y')  # labels: 0, not repeat buyer; 1, is repeat buyer
     logits = build_model(model_name, x)
     predicts = tf.nn.softmax(logits)
@@ -52,7 +52,7 @@ def train_model(model_name, data_name, cfg_name):
             if step % cfg.decay_step == 0:
                 sess.run(global_step_increment)
 
-            data, labels = input_data.next_batch(cfg.batch_size, 'train')
+            data, labels = data_provider.next_batch(cfg.batch_size, 'train')
             batch_loss, _, batch_predict = sess.run([loss, optimizer, predicts],
                                                     feed_dict={x: data, y: labels})
             for train_index_y in range(cfg.batch_size):
@@ -77,11 +77,11 @@ def train_model(model_name, data_name, cfg_name):
 
             # Display validation status
             if step % cfg.val_step == 0:
-                val_num = int(input_data.val_size / cfg.batch_size)
+                val_num = int(data_provider.val_size / cfg.batch_size)
                 val_labels = np.ndarray(val_num * cfg.batch_size, dtype=np.int)
                 val_scores = np.ndarray(val_num * cfg.batch_size, dtype=np.float)
                 for val_index_x in range(val_num):
-                    data, labels = input_data.next_batch(cfg.batch_size, 'val')
+                    data, labels = data_provider.next_batch(cfg.batch_size, 'val')
                     val_predicts = sess.run(predicts, feed_dict={x: data, y: labels})
                     for val_index_y in range(cfg.batch_size):
                         val_index = val_index_x * cfg.batch_size + val_index_y

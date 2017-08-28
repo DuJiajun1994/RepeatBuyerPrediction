@@ -1,10 +1,19 @@
-import numpy as np
-import os
-from paths import Paths
+from data_providers.data1 import Data1
 
-class DataProvider:
-    def __init__(self, data_name):
-        pass
+
+def get_data_provider(data_name):
+    data_provider = None
+    if data_name == 'data1':
+        data_provider = Data1()
+    assert data_provider is not None, \
+        'data provider {} is not existed'.format(data_name)
+    return data_provider
+
+
+class DataProvider(object):
+    def __init__(self):
+        self.input_length = None
+        self.val_size = None
 
     def next_batch(self, batch_size, phase):
         '''
@@ -16,4 +25,12 @@ class DataProvider:
             label: whether is repeated buyer, 1 for true, 0 for false
         '''
         pass
+
+    @property
+    def input_length(self):
+        return self.input_length
+
+    @property
+    def val_size(self):
+        return self.val_size
 
