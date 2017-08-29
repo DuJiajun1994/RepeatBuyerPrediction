@@ -26,11 +26,4 @@ class DataProvider(object):
         '''
         pass
 
-    @property
-    def input_length(self):
-        return self.input_length
-
-    @property
-    def val_size(self):
-        return self.val_size
 
