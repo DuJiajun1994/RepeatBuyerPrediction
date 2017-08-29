@@ -1,15 +1,3 @@
-from data_providers.data1 import Data1
-
-
-def get_data_provider(data_name):
-    data_provider = None
-    if data_name == 'data1':
-        data_provider = Data1()
-    assert data_provider is not None, \
-        'data provider {} is not existed'.format(data_name)
-    return data_provider
-
-
 class DataProvider(object):
     def __init__(self):
         self._input_length = None
@@ -24,12 +12,14 @@ class DataProvider(object):
             data: input data
             label: whether is repeated buyer, 1 for true, 0 for false
         '''
-        pass
+        raise NotImplementedError
 
     @property
     def input_length(self):
+        assert self._input_length is not None
         return self._input_length
 
     @property
     def val_size(self):
+        assert self._val_size is not None
         return self._val_size

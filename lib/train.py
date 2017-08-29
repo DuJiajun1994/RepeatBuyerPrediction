@@ -7,7 +7,7 @@ import argparse
 import os
 import sys
 from build_model import build_model
-from data_provider import get_data_provider
+from get_data_provider import get_data_provider
 from config_provider import get_config
 from paths import Paths
 import numpy as np

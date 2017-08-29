@@ -40,7 +40,7 @@ class Data1(DataProvider):
 
     @staticmethod
     def _parse_feature(id_str, vector_length):
-        feature = np.zeros(vector_length)
+        feature = np.zeros(vector_length, dtype=np.int)
         if id_str == '':
             return feature
         id_arr = id_str.split(',')
