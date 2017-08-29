@@ -12,8 +12,8 @@ def get_data_provider(data_name):
 
 class DataProvider(object):
     def __init__(self):
-        self.input_length = None
-        self.val_size = None
+        self._input_length = None
+        self._val_size = None
 
     def next_batch(self, batch_size, phase):
         '''
@@ -26,4 +26,10 @@ class DataProvider(object):
         '''
         pass
 
+    @property
+    def input_length(self):
+        return self._input_length
 
+    @property
+    def val_size(self):
+        return self._val_size
