@@ -1,8 +1,8 @@
-train_iters: 1000000
-val_step: 100000
+train_iters: 100000
+val_step: 2000
 initial_learning_rate: 0.001
 decay_rate: 0.1
-decay_step: 1000000
-batch_size: 1 
-display_step: 10000
-snapshot_step: 1000000
+decay_step: 100000
+batch_size: 128 
+display_step: 100
+snapshot_step: 2000

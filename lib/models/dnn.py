@@ -14,7 +14,7 @@ def dnn(inputs, is_training=True, dropout_keep_prob=0.8):
         for _ in range(3):
             net = layers_lib.fully_connected(net,
                                              num_outputs=1024,
-                                             activation_fn=tf.nn.relu,
+                                             activation_fn=tf.nn.tanh,
                                              weights_regularizer=regularizer,
                                              biases_regularizer=regularizer)
             net = layers_lib.dropout(net, dropout_keep_prob, is_training=is_training)

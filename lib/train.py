@@ -24,7 +24,7 @@ def train_model(model_name, data_name, cfg_name):
     y = tf.placeholder(tf.int64, shape=[cfg.batch_size], name='y')  # labels: 0, not repeat buyer; 1, is repeat buyer
     logits = build_model(model_name, x)
     predicts = tf.nn.softmax(logits)
-    loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits, y))
+    loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y))
 
     global_step = tf.Variable(0, trainable=False)
     learning_rate = tf.train.exponential_decay(cfg.initial_learning_rate,
@@ -43,7 +43,6 @@ def train_model(model_name, data_name, cfg_name):
         train_loss = 0.
         train_labels = np.ndarray(cfg.display_step * cfg.batch_size, dtype=np.int)
         train_scores = np.ndarray(cfg.display_step * cfg.batch_size, dtype=np.float)
-        train_index_x = 0
         for step in range(1, cfg.train_iters + 1):
             if step % cfg.decay_step == 0:
                 sess.run(global_step_increment)
@@ -52,18 +51,16 @@ def train_model(model_name, data_name, cfg_name):
             batch_loss, _, batch_predict = sess.run([loss, optimizer, predicts],
                                                     feed_dict={x: data, y: labels})
             for train_index_y in range(cfg.batch_size):
-                train_index = train_index_x * cfg.batch_size + train_index_y
+                train_index = ((step-1) % cfg.display_step) * cfg.batch_size + train_index_y
                 train_labels[train_index] = labels[train_index_y]
                 train_scores[train_index] = batch_predict[train_index_y][1]
             train_loss += batch_loss
-
             # Display training status
             if step % cfg.display_step == 0:
                 train_accuracy = roc_auc_score(train_labels, train_scores)
                 print("{} Iter {}: Training Loss = {:.4f}, Accuracy = {:.4f}"
                       .format(datetime.now(), step, train_loss / cfg.display_step, train_accuracy))
                 train_loss = 0.
-                train_index_x = 0
 
             # Snapshot
             if step % cfg.snapshot_step == 0:
