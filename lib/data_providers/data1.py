@@ -37,11 +37,12 @@ class Data1(DataProvider):
         merchant_data_path = os.path.join(Paths.data_path, 'mer_code_ver2.txt')
         self._user_data = np.loadtxt(user_data_path, dtype=np.int)
         self._merchant_data = np.loadtxt(merchant_data_path, dtype=np.int)
+        self._input_length = 40466
 
     @staticmethod
     def _parse_feature(id_str, vector_length):
         feature = np.zeros(vector_length, dtype=np.int)
-        if id_str == '':
+        if pd.isnull(id_str):
             return feature
         id_arr = id_str.split(',')
         for id_cnt in id_arr:
@@ -107,3 +108,10 @@ class Data1(DataProvider):
         #     batch_ids, self._test_index = self._get_batch_ids(self._test_list, self._test_index, batch_size)
         #     batch_data, _ = self._get_batch_data(self._test_df, batch_ids, phase)
         return batch_data, batch_label
+
+if __name__ == '__main__':
+    data_provider = Data1()
+    data, label = data_provider.next_batch(100, 'train')
+    save_path = os.path.join(Paths.output_path, 'batch_data.txt')
+    np.savetxt(save_path, data)
+    print(label)
