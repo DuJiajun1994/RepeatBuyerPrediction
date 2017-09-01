@@ -113,5 +113,5 @@ if __name__ == '__main__':
     data_provider = Data1()
     data, label = data_provider.next_batch(100, 'train')
     save_path = os.path.join(Paths.output_path, 'batch_data.txt')
-    np.savetxt(save_path, data)
+    np.savetxt(save_path, data, fmt='%d')
     print(label)
