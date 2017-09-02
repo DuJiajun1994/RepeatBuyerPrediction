@@ -25,7 +25,7 @@ def train_model(model_name, data_name, cfg_name):
     is_training = tf.placeholder(tf.bool, name='is_training')
     dropout_keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
     logits = build_model(model_name, x, is_training, dropout_keep_prob)
-    predicts = tf.nn.softmax(logits)
+    predicts = tf.nn.softmax(logits, name='predicts')
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y))
 
     global_step = tf.Variable(0, trainable=False)

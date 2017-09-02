@@ -46,7 +46,7 @@ class Data1(DataProvider):
         self._train_list = train_val_list[:self._train_size]
         self._val_list = train_val_list[self._train_size:]
         self._test_list = list(self._test_df.index)
-        self._test_size = len(self._test_size)
+        self._test_size = len(self._test_list)
 
         user_data_path = os.path.join(Paths.data_path, 'user_date_ver3.txt')
         merchant_data_path = os.path.join(Paths.data_path, 'mer_code_ver2.txt')
