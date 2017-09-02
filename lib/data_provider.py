@@ -23,3 +23,8 @@ class DataProvider(object):
     def val_size(self):
         assert self._val_size is not None
         return self._val_size
+
+    @property
+    def test_size(self):
+        assert self._test_size is not None
+        return self._test_size

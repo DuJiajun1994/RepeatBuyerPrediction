@@ -14,11 +14,12 @@ class Data1(DataProvider):
         self._test_index = 0
 
         train_pair_path = os.path.join(Paths.data_path, 'train_pair.csv')
+        test_pair_path = os.path.join(Paths.data_path, 'test_pair.csv')
         self._train_df = pd.read_csv(train_pair_path,
                                      dtype={
                                          'user_id': np.int,
                                          'merchant_id': np.int,
-                                         'label': np.float,
+                                         'label': np.int,
                                          'visit_cat': np.str,
                                          'visit_seller': np.str,
                                          'visit_brand': np.str,
@@ -26,12 +27,26 @@ class Data1(DataProvider):
                                          'buy_seller': np.str,
                                          'buy_brand': np.str
                                      })
+        self._test_df = pd.read_csv(test_pair_path,
+                                    dtype={
+                                        'user_id': np.int,
+                                        'merchant_id': np.int,
+                                        'prob': np.float,
+                                        'visit_cat': np.str,
+                                        'visit_seller': np.str,
+                                        'visit_brand': np.str,
+                                        'buy_cat': np.str,
+                                        'buy_seller': np.str,
+                                        'buy_brand': np.str
+                                    })
         train_val_list = list(self._train_df.index)
         random.shuffle(train_val_list)
         self._train_size = int(len(train_val_list) * 0.7)
         self._val_size = len(train_val_list) - self._train_size
         self._train_list = train_val_list[:self._train_size]
         self._val_list = train_val_list[self._train_size:]
+        self._test_list = list(self._test_df.index)
+        self._test_size = len(self._test_size)
 
         user_data_path = os.path.join(Paths.data_path, 'user_date_ver3.txt')
         merchant_data_path = os.path.join(Paths.data_path, 'mer_code_ver2.txt')
@@ -104,9 +119,9 @@ class Data1(DataProvider):
         elif phase == 'val':
             batch_ids, self._val_index = self._get_batch_ids(self._val_list, self._val_index, batch_size)
             batch_data, batch_label = self._get_batch_data(self._train_df, batch_ids, phase)
-        # elif phase == 'test':
-        #     batch_ids, self._test_index = self._get_batch_ids(self._test_list, self._test_index, batch_size)
-        #     batch_data, _ = self._get_batch_data(self._test_df, batch_ids, phase)
+        elif phase == 'test':
+            batch_ids, self._test_index = self._get_batch_ids(self._test_list, self._test_index, batch_size)
+            batch_data, _ = self._get_batch_data(self._test_df, batch_ids, phase)
         return batch_data, batch_label
 
 if __name__ == '__main__':
