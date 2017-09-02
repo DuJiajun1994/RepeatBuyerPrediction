@@ -22,8 +22,8 @@ def train_model(model_name, data_name, cfg_name):
 
     x = tf.placeholder(tf.float32, shape=[None, data_provider.input_length], name='x')
     y = tf.placeholder(tf.int64, shape=[None], name='y')  # labels: 0, not repeat buyer; 1, is repeat buyer
-    is_training = tf.placeholder(tf.bool, shape=1, name='is_training')
-    dropout_keep_prob = tf.placeholder(tf.float32, shape=1, name='dropout_keep_prob')
+    is_training = tf.placeholder(tf.bool, name='is_training')
+    dropout_keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
     logits = build_model(model_name, x, is_training, dropout_keep_prob)
     predicts = tf.nn.softmax(logits)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y))
