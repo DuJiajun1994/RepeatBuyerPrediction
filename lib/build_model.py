@@ -6,10 +6,10 @@ from models.dnn import dnn
 from models.logistic_regression import logistic_regression
 
 
-def build_model(model_name, inputs, is_training=True, dropout_keep_prob=0.5):
+def build_model(model_name, inputs, is_training, dropout_keep_prob):
     model = None
     if model_name == 'dnn':
-        model = dnn(inputs)
+        model = dnn(inputs, is_training, dropout_keep_prob)
     elif model_name == 'logistic_regression':
         model = logistic_regression(inputs)
     assert model is not None, \

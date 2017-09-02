@@ -22,7 +22,9 @@ def train_model(model_name, data_name, cfg_name):
 
     x = tf.placeholder(tf.float32, shape=[cfg.batch_size, data_provider.input_length], name='x')
     y = tf.placeholder(tf.int64, shape=[cfg.batch_size], name='y')  # labels: 0, not repeat buyer; 1, is repeat buyer
-    logits = build_model(model_name, x)
+    is_training = tf.placeholder(tf.bool, shape=1, name='is_training')
+    dropout_keep_prob = tf.placeholder(tf.float32, shape=1, name='dropout_keep_prob')
+    logits = build_model(model_name, x, is_training, dropout_keep_prob)
     predicts = tf.nn.softmax(logits)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y))
 
@@ -49,7 +51,10 @@ def train_model(model_name, data_name, cfg_name):
 
             data, labels = data_provider.next_batch(cfg.batch_size, 'train')
             batch_loss, _, batch_predict = sess.run([loss, optimizer, predicts],
-                                                    feed_dict={x: data, y: labels})
+                                                    feed_dict={x: data,
+                                                               y: labels,
+                                                               is_training: True,
+                                                               dropout_keep_prob: cfg.dropout_keep_prob})
             for train_index_y in range(cfg.batch_size):
                 train_index = ((step-1) % cfg.display_step) * cfg.batch_size + train_index_y
                 train_labels[train_index] = labels[train_index_y]
@@ -75,7 +80,10 @@ def train_model(model_name, data_name, cfg_name):
                 val_scores = np.ndarray(val_num * cfg.batch_size, dtype=np.float)
                 for val_index_x in range(val_num):
                     data, labels = data_provider.next_batch(cfg.batch_size, 'val')
-                    val_predicts = sess.run(predicts, feed_dict={x: data, y: labels})
+                    val_predicts = sess.run(predicts, feed_dict={x: data,
+                                                                 y: labels,
+                                                                 is_training: False,
+                                                                 dropout_keep_prob: cfg.dropout_keep_prob})
                     for val_index_y in range(cfg.batch_size):
                         val_index = val_index_x * cfg.batch_size + val_index_y
                         val_labels[val_index] = labels[val_index_y]

@@ -18,7 +18,7 @@ def dnn(inputs, is_training=True, dropout_keep_prob=0.8):
                                          normalizer_fn=normalizer,
                                          weights_regularizer=regularizer,
                                          biases_regularizer=regularizer)
-            net = layers.dropout(net, dropout_keep_prob, is_training=is_training)
+            net = layers.dropout(net, keep_prob=dropout_keep_prob, is_training=is_training)
         net = layers.fully_connected(net,
                                      num_outputs=2,
                                      activation_fn=None,
