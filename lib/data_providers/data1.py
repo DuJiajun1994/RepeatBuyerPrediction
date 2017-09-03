@@ -40,11 +40,12 @@ class Data1(DataProvider):
                                         'buy_brand': np.str
                                     })
         train_val_list = list(self._train_df.index)
-        random.shuffle(train_val_list)
-        self._train_size = int(len(train_val_list) * 0.7)
-        self._val_size = len(train_val_list) - self._train_size
-        self._train_list = train_val_list[:self._train_size]
-        self._val_list = train_val_list[self._train_size:]
+        train_size = int(len(train_val_list) * 0.7)
+        self._train_list = train_val_list[:train_size]
+        self._train_list = self._upsample(self._train_list)
+        random.shuffle(self._train_list)
+        self._val_list = train_val_list[train_size:]
+        self._val_size = len(self._val_list)
         self._test_list = list(self._test_df.index)
         self._test_size = len(self._test_list)
 
@@ -53,6 +54,20 @@ class Data1(DataProvider):
         self._user_data = np.loadtxt(user_data_path, dtype=np.int)
         self._merchant_data = np.loadtxt(merchant_data_path, dtype=np.int)
         self._input_length = 40466
+
+    def _upsample(self, train_list):
+        '''
+        Upsample negative samples in the train list by 17 times
+        :param train_list:
+        :return:
+        '''
+        upsampled_list = []
+        for index_id in train_list:
+            upsampled_list.append(index_id)
+            if self._train_df['label'][index_id] == 0:
+                for _ in range(16):
+                    upsampled_list.append(index_id)
+        return upsampled_list
 
     @staticmethod
     def _parse_feature(id_str, vector_length):
@@ -94,7 +109,7 @@ class Data1(DataProvider):
 
         if phase != 'test':
             batch_label = np.hstack([
-                int(df['label'][index_id]) for index_id in batch_ids
+                df['label'][index_id] for index_id in batch_ids
             ])
         else:
             batch_label = None
