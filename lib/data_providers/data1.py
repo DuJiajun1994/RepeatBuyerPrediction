@@ -57,14 +57,14 @@ class Data1(DataProvider):
 
     def _upsample(self, train_list):
         '''
-        Upsample negative samples in the train list by 17 times
+        Upsample positive samples in the train list by 17 times
         :param train_list:
         :return:
         '''
         upsampled_list = []
         for index_id in train_list:
             upsampled_list.append(index_id)
-            if self._train_df['label'][index_id] == 0:
+            if self._train_df['label'][index_id] == 1:
                 for _ in range(16):
                     upsampled_list.append(index_id)
         return upsampled_list
