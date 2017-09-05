@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')
+
 from paths import add_lib_path
 add_lib_path()
 
@@ -93,7 +96,7 @@ def train_model(model_name, data_name, cfg_name):
                 print("{} Iter {}: Validation Accuracy = {:.4f}".format(datetime.now(), step, val_accuracy))
                 fp_rate, tp_rate, _ = roc_curve(val_labels, val_scores)
                 plt.plot(fp_rate, tp_rate)
-                figure_path = os.path.join(cfg.output_path, 'val_roc_curve {}.jpg'.format(datetime.now()))
+                figure_path = os.path.join(Paths.output_path, 'val_roc_curve.jpg')
                 plt.savefig(figure_path)
 
 
