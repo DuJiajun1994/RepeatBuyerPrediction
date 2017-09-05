@@ -11,7 +11,8 @@ from get_data_provider import get_data_provider
 from config_provider import get_config
 from paths import Paths
 import numpy as np
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, roc_curve
+import matplotlib.pyplot as plt
 
 
 def train_model(model_name, data_name, cfg_name):
@@ -90,6 +91,11 @@ def train_model(model_name, data_name, cfg_name):
                         val_scores[val_index] = val_predicts[val_index_y][1]
                 val_accuracy = roc_auc_score(val_labels, val_scores)
                 print("{} Iter {}: Validation Accuracy = {:.4f}".format(datetime.now(), step, val_accuracy))
+                fp_rate, tp_rate, _ = roc_curve(val_labels, val_scores)
+                plt.plot(fp_rate, tp_rate)
+                figure_path = os.path.join(cfg.output_path, 'val_roc_curve {}.jpg'.format(datetime.now()))
+                plt.savefig(figure_path)
+
 
         print('Finish!')
 
